@@ -23,7 +23,7 @@ const Banner = () => {
     const { data: movieDetail } = await axios.get(`/movie/${movieId}`, {
       params: { append_to_response: "videos" }
     });
-    console.log("movieDetail", movieDetail);
+    // console.log("movieDetail", movieDetail);
     setMovie(movieDetail);
   }
 

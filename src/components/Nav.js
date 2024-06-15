@@ -69,7 +69,7 @@ const Nav = () => {
   }
 
   return (
-    <NavWrapper show={true}>
+    <NavWrapper show={show ? "true" : undefined}>
       <Logo>
         <img src="/images/logo.svg" alt="Disney Plus Logo" onClick={() => window.location.href = "/"} />
       </Logo>
