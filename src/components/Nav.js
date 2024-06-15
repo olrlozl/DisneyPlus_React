@@ -1,4 +1,4 @@
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
@@ -10,10 +10,10 @@ const Nav = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      console.log('user', user);
       if (user) {
         if (pathname === "/") {
           navigate("/main");
@@ -48,9 +48,19 @@ const Nav = () => {
   const handleAuth = () => {
     signInWithPopup(auth, provider)
       .then(result => {
-
+        setUserData(result.user);
       })
       .catch(error => {
+        console.log(error);
+      })
+  }
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        setUserData({});
+        navigate('/');
+      }).catch((error) => {
         console.log(error);
       })
   }
@@ -62,18 +72,66 @@ const Nav = () => {
       </Logo>
       {pathname === "/" ?
         (<Login onClick={handleAuth}>Login</Login>) :
-        <Input
-          value={searchValue}
-          onChange={handleChange}
-          className='nav__inut'
-          type="text"
-          placeholder='검색할 영화를 입력하세요'>
-        </Input>}
+        <>
+          <Input
+            value={searchValue}
+            onChange={handleChange}
+            className='nav__inut'
+            type="text"
+            placeholder='검색할 영화를 입력하세요'
+          />
+
+          <SignOut>
+            <UserImg src={userData.photoURL} alt={userData.displayName} />
+            <DropDown>
+              <span onClick={handleSignOut}>Sign Out</span>
+            </DropDown>
+          </SignOut>
+        </>
+      }
     </NavWrapper>
   )
 }
 
 export default Nav
+
+const DropDown = styled.div`
+  position: absolute;
+  top: 48px;
+  right: 0px;
+  background: rgb(19, 19, 19);
+  border: 1px solid rgba(151, 151, 151, 0.34);
+  border-radius:  4px;
+  box-shadow: rgb(0 0 0 /50%) 0px 0px 18px 0px;
+  padding: 10px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  width: 100%;
+  opacity: 0;
+`;
+
+const SignOut = styled.div`
+  position: relative;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    ${DropDown} {
+      opacity: 1;
+      transition-duration: 1s;
+    }
+  }
+`;
+
+const UserImg = styled.img`
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+`;
 
 const Login = styled.a`
   background-color: rgba(0,0,0,0.6);
